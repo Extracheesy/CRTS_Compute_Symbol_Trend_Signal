@@ -20,9 +20,15 @@ def print_hi(name):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+
+    if (str(sys.argv[1]) == "--COLAB"):
+        config.COLAB = True
+    else:
+        config.COLAB = False
+
     mk_directories()
 
-    input_file = str(sys.argv[1])
+    input_file = str(sys.argv[2])
     input_file = input_file[2:]
 
     df = get_df(input_file)

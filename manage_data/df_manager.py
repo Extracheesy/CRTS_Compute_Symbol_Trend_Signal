@@ -5,12 +5,17 @@ from scrap_yahoo import get_yahoo_recommendation
 import config
 
 def get_df(input_file):
-    config.OUTPUT_FILENAME = config.OUTPUT_DIR + "recom_df_" + input_file + ".csv"
+    config.OUTPUT_FILENAME = config.OUTPUT_DIR + "/recom_df_" + input_file + ".csv"
+    if (config.COLAB == True):
+        config.COLAB_OUTPUT_FILENAME = config.COLAB_OUTPUT_DIR + "/recom_df_" + input_file + ".csv"
+
     df = read_CSL_file(input_file)
     return df
 
 def save_df(df):
     save_CRTS_output(df, config.OUTPUT_FILENAME)
+    if (config.COLAB == True):
+        save_CRTS_output(df, config.COLAB_OUTPUT_FILENAME)
 
 def add_market_recom(df):
     if(config.YAHOO_RECOM == True):

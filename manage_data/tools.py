@@ -17,3 +17,10 @@ def mk_directories():
     if not os.path.exists(config.OUTPUT_DIR):
         os.makedirs(config.OUTPUT_DIR)
 
+    if (config.COLAB == True):
+        if not os.path.exists(config.COLAB_OUTPUT_CRTS):
+            os.makedirs(config.COLAB_OUTPUT_CRTS)
+        if not os.path.exists(config.COLAB_OUTPUT_DIR):
+            os.makedirs(config.COLAB_OUTPUT_DIR)
+
+
