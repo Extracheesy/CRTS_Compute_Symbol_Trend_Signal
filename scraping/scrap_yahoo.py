@@ -3,6 +3,7 @@ import yfinance as yf
 import datetime
 import concurrent.futures
 import uuid
+import pandas as pd
 
 from bs4 import BeautifulSoup
 import requests
@@ -33,16 +34,20 @@ def use_yfinance_mixed(df):
                 html_text = soup.text
 
                 match = re.findall(r'Rating...1StrongBuy', html_text)
-                string = match[0]
-                string = string[6:10]
+                if(len(match)==19):
+                    string = match[0]
+                    string = string[6:10]
 
-                Y_recom = float(string)
-                df["T_r_Mean"][stock] = Y_recom
-                df["T_r_Key"][stock] = config.DF_YAHOO_RECOMENDATTION['recom_key'][int(Y_recom)-1]
+                    Y_recom = float(string)
+                    df["T_r_Mean"][stock] = Y_recom
+                    df["T_r_Key"][stock] = config.DF_YAHOO_RECOMENDATTION['recom_key'][int(Y_recom)-1]
 
-                print("symbol requests: ", stock)
+                    print("symbol requests: ", stock)
+                else:
+                    raise Exception('This is the exception')
             except:
                 try:
+                    print('exception raised')
                     quote_data = si.get_quote_data(stock)
                     yahoo_recommendation = quote_data['averageAnalystRating']
                     yahoo_recommendation_split = yahoo_recommendation.split(" - ")
@@ -66,6 +71,11 @@ def use_yfinance_api(df):
             yf_stock = yf.Ticker(stock)
             df["T_r_Key"][stock] = yf_stock.info['recommendationKey']
             df["T_r_Mean"][stock] = yf_stock.info['recommendationMean']
+
+            if df['T_r_Key'][stock] == 'none':
+                df["T_r_Key"][stock] = ''
+                df["T_r_Mean"][stock] = ''
+
             print("symbol: ", stock)
         except:
             print("no YahooF data symbol: ", stock)
@@ -105,36 +115,50 @@ def use_yfinance_scraping(df):
         #stock = "AAPL"
         try:
             url = 'https://finance.yahoo.com/quote/' + stock + '?p=' + stock + '&.tsrc=fin-srch'
-            print(url)
+            # print(url)
             page = requests.get(url)
+            if(page.status_code == 404):
+                raise Exception('err. 404')
 
             soup = BeautifulSoup(page.text, 'lxml')
             html_text = soup.text
 
             match = re.findall(r'Rating...1StrongBuy', html_text)
-            string = match[0]
-            string = string[6:10]
+            if (len(match) == 19):
+                string = match[0]
+                string = string[6:10]
 
-            Y_recom = float(string)
-            df["T_r_Mean"][stock] = Y_recom
-            df["T_r_Key"][stock] = config.DF_YAHOO_RECOMENDATTION['recom_key'][int(Y_recom)-1]
+                Y_recom = float(string)
+                df["T_r_Mean"][stock] = Y_recom
+                df["T_r_Key"][stock] = config.DF_YAHOO_RECOMENDATTION['recom_key'][int(Y_recom)-1]
 
-            print("symbol requests: ", stock)
+                print("symbol requests: ", stock)
+            else:
+                raise Exception('This is the exception')
         except:
+            print('exception')
             print("no requests data symbol: ", stock)
 
     df.reset_index(inplace=True)
-
-    # df["symbol"] = df.index
-    # first_column = df.pop('symbol')
-    # df.insert(0, 'symbol', first_column)
-    # df.reset_index(drop=True, inplace=True)
-
     return df
 
 def use_yfinance_multi_api(df):
-    # df = use_yfinance_api(df)
-    df = use_yfinance_mixed(df)
+    if (config.MULTITHREADING_MIXED_COMPUTATION == True):
+        df = use_yfinance_mixed(df)
+    else:
+        df = use_yfinance_api(df)
+        df_yfinance = df.loc[df['T_r_Key'] != '', df.columns].copy()
+
+        df = df.loc[df['T_r_Key'] == '', df.columns].copy()
+        df = use_yahoo_fin_api(df)
+        df_yahoo_fin = df.loc[df['T_r_Mean'] != '', df.columns].copy()
+
+        df = df.loc[df['T_r_Mean'] == '', df.columns].copy()
+        df = use_yfinance_scraping(df)
+
+        frame = [df_yfinance, df_yahoo_fin, df]
+        df = pd.concat(frame)
+
     filename = config.MULTITHREADING_POOL + str(uuid.uuid4()) + '_result.csv'
     df.to_csv(filename)
 
@@ -153,10 +177,22 @@ def get_yahoo_recommendation(df):
         df = merge_csv_to_df(config.MULTITHREADING_POOL, "*_result.csv")
 
     else:
-        df = use_yfinance_mixed(df)
-        df = use_yahoo_fin_api(df)
         df = use_yfinance_api(df)
+        df_yfinance = df.loc[df['T_r_Key'] != '', df.columns].copy()
+
+        df = df.loc[df['T_r_Key'] == '', df.columns].copy()
+        df = use_yahoo_fin_api(df)
+        df_yahoo_fin = df.loc[df['T_r_Mean'] != '', df.columns].copy()
+
+        df = df.loc[df['T_r_Mean'] == '', df.columns].copy()
         df = use_yfinance_scraping(df)
+
+        frame = [df_yfinance, df_yahoo_fin, df]
+        df = pd.concat(frame)
+
+
+
+
 
 
     print("runtime: ", datetime.datetime.now().now() - START_TIME)
