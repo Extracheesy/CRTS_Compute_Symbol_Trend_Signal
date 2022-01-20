@@ -1,3 +1,4 @@
+import pandas as pd
 from datetime import date
 DATE = str(date.today())
 
@@ -17,3 +18,7 @@ COLAB = False
 COLAB_OUTPUT_CRTS = "../drive/MyDrive/colab_results/CRTS/"
 COLAB_OUTPUT_DIR = COLAB_OUTPUT_CRTS + DATE
 COLAB_OUTPUT_FILENAME = ""
+
+
+data = ["Strong Buy", "Buy", "Hold", "Under-perform", "Sell"]
+DF_YAHOO_RECOMENDATTION = pd.DataFrame(data, columns=['recom_key'])
