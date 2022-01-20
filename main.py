@@ -1,4 +1,9 @@
 import sys
+
+sys.path.append("./manage_data/")
+sys.path.append("./scraping/")
+sys.path.append("./init/")
+
 from df_manager import get_df
 from df_manager import add_market_recom
 from tools import mk_directories
@@ -7,10 +12,6 @@ import config
 """
     CRTS module: Compute Recommendation Trend Signals
 """
-
-sys.path.append("./manage_data/")
-sys.path.append("./scraping/")
-sys.path.append("./init/")
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
