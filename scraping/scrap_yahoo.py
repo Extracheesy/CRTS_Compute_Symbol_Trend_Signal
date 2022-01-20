@@ -14,6 +14,7 @@ def use_yfinance_api(df):
             yf_stock = yf.Ticker(stock)
             df["T_r_Key"][stock] = yf_stock.info['recommendationKey']
             df["T_r_Mean"][stock] = yf_stock.info['recommendationMean']
+            print("symbol: ", stock)
         except:
             print("no YahooF data symbol: ", stock)
 

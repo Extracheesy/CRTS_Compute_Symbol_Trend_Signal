@@ -8,6 +8,10 @@ import config
     CRTS module: Compute Recommendation Trend Signals
 """
 
+sys.path.append("./manage_data/")
+sys.path.append("./scraping/")
+sys.path.append("./init/")
+
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
     print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
