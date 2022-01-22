@@ -21,8 +21,8 @@ def use_yfinance_mixed(df):
     for stock in list_stocks:
         try:
             yf_stock = yf.Ticker(stock)
-            df["T_r_Key"][stock] = yf_stock.info['recommendationKey']
-            df["T_r_Mean"][stock] = yf_stock.info['recommendationMean']
+            df["Y_r_Key"][stock] = yf_stock.info['recommendationKey']
+            df["Y_r_Mean"][stock] = yf_stock.info['recommendationMean']
             print("symbol Yfinance: ", stock)
         except:
             try:
@@ -39,8 +39,8 @@ def use_yfinance_mixed(df):
                     string = string[6:10]
 
                     Y_recom = float(string)
-                    df["T_r_Mean"][stock] = Y_recom
-                    df["T_r_Key"][stock] = config.DF_YAHOO_RECOMENDATTION['recom_key'][int(Y_recom)-1]
+                    df["Y_r_Mean"][stock] = Y_recom
+                    df["Y_r_Key"][stock] = config.DF_YAHOO_RECOMENDATTION['recom_key'][int(Y_recom)-1]
 
                     print("symbol requests: ", stock)
                 else:
@@ -51,8 +51,8 @@ def use_yfinance_mixed(df):
                     quote_data = si.get_quote_data(stock)
                     yahoo_recommendation = quote_data['averageAnalystRating']
                     yahoo_recommendation_split = yahoo_recommendation.split(" - ")
-                    df["T_r_Mean"][stock] = yahoo_recommendation_split[0]
-                    df["T_r_Key"][stock] = yahoo_recommendation_split[1]
+                    df["Y_r_Mean"][stock] = yahoo_recommendation_split[0]
+                    df["Y_r_Key"][stock] = yahoo_recommendation_split[1]
 
                     print("symbol Y_fin: ", stock)
                 except:
@@ -69,12 +69,12 @@ def use_yfinance_api(df):
     for stock in list_stocks:
         try:
             yf_stock = yf.Ticker(stock)
-            df["T_r_Key"][stock] = yf_stock.info['recommendationKey']
-            df["T_r_Mean"][stock] = yf_stock.info['recommendationMean']
+            df["Y_r_Key"][stock] = yf_stock.info['recommendationKey']
+            df["Y_r_Mean"][stock] = yf_stock.info['recommendationMean']
 
-            if df['T_r_Key'][stock] == 'none':
-                df["T_r_Key"][stock] = ''
-                df["T_r_Mean"][stock] = ''
+            if df['Y_r_Key'][stock] == 'none':
+                df["Y_r_Key"][stock] = ''
+                df["Y_r_Mean"][stock] = ''
 
             print("symbol: ", stock)
         except:
@@ -93,8 +93,8 @@ def use_yahoo_fin_api(df):
             quote_data = si.get_quote_data(stock)
             yahoo_recommendation = quote_data['averageAnalystRating']
             yahoo_recommendation_split = yahoo_recommendation.split(" - ")
-            df["T_r_Mean"][stock] = yahoo_recommendation_split[0]
-            df["T_r_Key"][stock] = yahoo_recommendation_split[1]
+            df["Y_r_Mean"][stock] = yahoo_recommendation_split[0]
+            df["Y_r_Key"][stock] = yahoo_recommendation_split[1]
 
             print("symbol Y_fin: ", stock)
         except:
@@ -129,8 +129,8 @@ def use_yfinance_scraping(df):
                 string = string[6:10]
 
                 Y_recom = float(string)
-                df["T_r_Mean"][stock] = Y_recom
-                df["T_r_Key"][stock] = config.DF_YAHOO_RECOMENDATTION['recom_key'][int(Y_recom)-1]
+                df["Y_r_Mean"][stock] = Y_recom
+                df["Y_r_Key"][stock] = config.DF_YAHOO_RECOMENDATTION['recom_key'][int(Y_recom)-1]
 
                 print("symbol requests: ", stock)
             else:
@@ -147,13 +147,13 @@ def use_yfinance_multi_api(df):
         df = use_yfinance_mixed(df)
     else:
         df = use_yfinance_api(df)
-        df_yfinance = df.loc[df['T_r_Key'] != '', df.columns].copy()
+        df_yfinance = df.loc[df['Y_r_Key'] != '', df.columns].copy()
 
-        df = df.loc[df['T_r_Key'] == '', df.columns].copy()
+        df = df.loc[df['Y_r_Key'] == '', df.columns].copy()
         df = use_yahoo_fin_api(df)
-        df_yahoo_fin = df.loc[df['T_r_Mean'] != '', df.columns].copy()
+        df_yahoo_fin = df.loc[df['Y_r_Mean'] != '', df.columns].copy()
 
-        df = df.loc[df['T_r_Mean'] == '', df.columns].copy()
+        df = df.loc[df['Y_r_Mean'] == '', df.columns].copy()
         df = use_yfinance_scraping(df)
 
         frame = [df_yfinance, df_yahoo_fin, df]
@@ -164,8 +164,8 @@ def use_yfinance_multi_api(df):
 
 
 def get_yahoo_recommendation(df):
-    df["T_r_Key"] = ""
-    df["T_r_Mean"] = ""
+    df["Y_r_Key"] = ""
+    df["Y_r_Mean"] = ""
     START_TIME = datetime.datetime.now().now()
     print("get YahooF recom")
     if config.MULTITHREADING == True:
@@ -178,22 +178,17 @@ def get_yahoo_recommendation(df):
 
     else:
         df = use_yfinance_api(df)
-        df_yfinance = df.loc[df['T_r_Key'] != '', df.columns].copy()
+        df_yfinance = df.loc[df['Y_r_Key'] != '', df.columns].copy()
 
-        df = df.loc[df['T_r_Key'] == '', df.columns].copy()
+        df = df.loc[df['Y_r_Key'] == '', df.columns].copy()
         df = use_yahoo_fin_api(df)
-        df_yahoo_fin = df.loc[df['T_r_Mean'] != '', df.columns].copy()
+        df_yahoo_fin = df.loc[df['Y_r_Mean'] != '', df.columns].copy()
 
-        df = df.loc[df['T_r_Mean'] == '', df.columns].copy()
+        df = df.loc[df['Y_r_Mean'] == '', df.columns].copy()
         df = use_yfinance_scraping(df)
 
         frame = [df_yfinance, df_yahoo_fin, df]
         df = pd.concat(frame)
-
-
-
-
-
 
     print("runtime: ", datetime.datetime.now().now() - START_TIME)
 
