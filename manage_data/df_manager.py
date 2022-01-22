@@ -21,13 +21,14 @@ def save_df(df):
         save_CRTS_output(df, config.COLAB_OUTPUT_FILENAME)
 
 def add_market_recom(df):
-    df = df[:300]
+    df = df[:config.DEBUG_REDUCE_DF_SIZE]
 
     if(config.YAHOO_RECOM == True):
         df = get_yahoo_recommendation(df)
 
     if (config.INVESTING_RECOM == True):
         df = get_investing_recommendation(df)
+
 
     save_df(df)
 

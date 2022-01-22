@@ -9,25 +9,9 @@ from bs4 import BeautifulSoup
 import re
 
 import config
-import cst
+import constant
 
-def my_random_user_agent():
-    """
-    This function selects a random User-Agent from the User-Agent list, which is a constant
-    variable that can be found at `investpy.utils.constant.USER_AGENTS`. User-Agents are used in
-    order to avoid the limitations of the requests to Investing.com. The User-Agent is
-    specified on the headers of the requests and is different for every request.
-    Note that Investing.com, via changing the User-Agent on the headers of every request, allows
-    a lot of requests, since it has been tested with over 10k consecutive requests without getting
-    any HTTP error code from Investing.com.
-    Returns:
-        :obj:`str` - user_agent:
-            The returned :obj:`str` is the name of a random User-Agent, which will be passed on the
-            headers of a request so to avoid restrictions due to the use of multiple requests from the
-            same User-Agent.
-    """
-
-    return random.choice(cst.USER_AGENTS)
+from tools import my_random_user_agent
 
 def investing_moving_averages(name, country, id, product_type, interval="daily"):
     """
@@ -95,11 +79,11 @@ def investing_moving_averages(name, country, id, product_type, interval="daily")
 
     data_values = {
         "pairID": product_id,
-        "period": config.INTERVAL_FILTERS[interval],
+        "period": constant.INTERVAL_FILTERS[interval],
         "viewType": "normal",
     }
 
-    """
+
     headers = {
         "User-Agent": my_random_user_agent(),
         "X-Requested-With": "XMLHttpRequest",
@@ -107,12 +91,12 @@ def investing_moving_averages(name, country, id, product_type, interval="daily")
         "Accept-Encoding": "gzip, deflate",
         "Connection": "keep-alive",
     }
-    """
+
 
     url = "https://www.investing.com/instruments/Service/GetTechincalData"
 
-    # req = requests.post(url, headers=headers, data=data_values)
-    req = requests.post(url, headers={'User-Agent': 'Mozilla/5.0'} ,data=data_values)
+    req = requests.post(url, headers=headers, data=data_values)
+    # req = requests.post(url, headers={'User-Agent': 'Mozilla/5.0'} ,data=data_values)
 
     if req.status_code != 200:
         raise ConnectionError(
@@ -184,9 +168,18 @@ def investing_data_from_tag(tag, interval="daily"):
         "period": config.INTERVAL_FILTERS[interval],
     }
 
+    headers = {
+        "User-Agent": my_random_user_agent(),
+        "X-Requested-With": "XMLHttpRequest",
+        "Accept": "text/html",
+        "Accept-Encoding": "gzip, deflate",
+        "Connection": "keep-alive",
+    }
+
 
     url = 'https://www.investing.com/equities/' + tag + '-technical'
-    req = requests.post(url, headers={'User-Agent': 'Mozilla/5.0'}, data=data_values)
+    # req = requests.post(url, headers={'User-Agent': 'Mozilla/5.0'}, data=data_values)
+    req = requests.post(url, headers=headers, data=data_values)
 
     if req.status_code != 200:
         return "-", "-", "-"

@@ -134,6 +134,9 @@ def use_investpy_api(df):
     df['symbol'] = df.index
     df.reset_index(drop=True, inplace=True)
 
+    first_column = df.pop('symbol')
+    df.insert(0, 'symbol', first_column)
+
     return df
 
 def get_investing_recommendation(df):
