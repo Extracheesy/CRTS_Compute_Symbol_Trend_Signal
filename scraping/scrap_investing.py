@@ -82,12 +82,10 @@ def use_investpy_api(df):
     # print("remove tickers with no index: ", len_df - len(df_screener))
 
     tickers = df['symbol'].tolist()
-    insert_df_column(df)
+
+    # insert_df_column(df)
 
     df = df.set_index('symbol')
-
-
-
 
     for ticker in tickers:
         # ticker = 'ADOCR'
@@ -133,11 +131,12 @@ def use_investpy_api(df):
             print("No Investing.com data for ",symbol)
 
     #df_screener.to_csv(config.OUTPUT_DIR+'tmp.csv')
+    df['symbol'] = df.index
+    df.reset_index(drop=True, inplace=True)
 
     return df
 
 def get_investing_recommendation(df):
-    df = df[:300]
     df["I_symbol"] = ""
     df["I_r_Key"] = ""
     df["I_r_tch_ind"] = ""
@@ -152,6 +151,8 @@ def get_investing_recommendation(df):
 
     print("get YahooF recom")
     df = use_investpy_api(df)
+
+
 
     print("runtime: ", datetime.datetime.now().now() - START_TIME)
 

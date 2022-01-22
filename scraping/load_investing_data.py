@@ -189,15 +189,16 @@ def investing_data_from_tag(tag, interval="daily"):
     req = requests.post(url, headers={'User-Agent': 'Mozilla/5.0'}, data=data_values)
 
     if req.status_code != 200:
-        raise ConnectionError(
-            "ERR#0015: error " + str(req.status_code) + ", try again later."
-        )
+        return "-", "-", "-"
+        # raise ConnectionError(
+        #    "ERR#0015: error " + str(req.status_code) + ", try again later."
+        # )
+    # elif response.status_code == 404:
+    #     page_status = "does not exist"
 
     soup = BeautifulSoup(req.text, 'lxml')
     # title = soup.title.text
-
     recom_summary = soup.find(class_='newTechStudiesRight instrumentTechTab').find(class_="summary").text[8:]
-
     table_line = soup.find(class_='newTechStudiesRight instrumentTechTab').find_all(class_="summaryTableLine")
 
     recom_moving_avg = table_line[0].text
@@ -215,5 +216,4 @@ def investing_validate_tag(tag):
     if (tag.find('?cid=') != -1):
         pos = tag.index("?")
         tag = tag[:pos]
-
     return tag

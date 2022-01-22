@@ -50,6 +50,13 @@ def split_list_into_list(df):
 
     return global_split_list
 
+def clean_up_df_symbol(df):
+    for c in df.columns:
+        if c.startswith("Unnamed"):
+            df.drop(c, axis=1, inplace=True)
+
+    return df
+
 
 
 
