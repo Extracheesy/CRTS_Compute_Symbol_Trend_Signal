@@ -27,46 +27,25 @@ def use_yfinance_mixed(df):
             yf_stock = yf.Ticker(stock)
             df["Y_r_Key"][stock] = yf_stock.info['recommendationKey']
             df["Y_r_Mean"][stock] = yf_stock.info['recommendationMean']
+
             print("symbol Yfinance: ", stock)
         except:
             try:
-                headers = {
-                    "User-Agent": my_random_user_agent(),
-                    "X-Requested-With": "XMLHttpRequest",
-                    "Accept": "text/html",
-                    "Accept-Encoding": "gzip, deflate",
-                    "Connection": "keep-alive",
-                }
+                quote_data = si.get_quote_data(stock)
+                yahoo_recommendation = quote_data['averageAnalystRating']
+                yahoo_recommendation_split = yahoo_recommendation.split(" - ")
+                df["Y_r_Mean"][stock] = yahoo_recommendation_split[0]
+                df["Y_r_Key"][stock] = yahoo_recommendation_split[1]
 
-                url = 'https://finance.yahoo.com/quote/' + stock + '?p=' + stock + '&.tsrc=fin-srch'
-                # print(url)
-                page = requests.get(url, headers=headers)
-
-                soup = BeautifulSoup(page.text, 'lxml')
-                html_text = soup.text
-
-                match = re.findall(r'Rating...1StrongBuy', html_text)
-                if(len(match)==19):
-                    string = match[0]
-                    string = string[6:10]
-
-                    Y_recom = float(string)
-                    df["Y_r_Mean"][stock] = Y_recom
-                    df["Y_r_Key"][stock] = config.DF_YAHOO_RECOMENDATTION['recom_key'][int(Y_recom)-1]
-
-                    print("symbol requests: ", stock)
-                else:
-                    raise Exception('This is the exception')
+                print("symbol Y_fin: ", stock)
             except:
                 try:
-                    print('exception raised')
-                    quote_data = si.get_quote_data(stock)
-                    yahoo_recommendation = quote_data['averageAnalystRating']
+                    yahoo_recommendation = Ticker(stock).quotes[stock]['averageAnalystRating']
                     yahoo_recommendation_split = yahoo_recommendation.split(" - ")
                     df["Y_r_Mean"][stock] = yahoo_recommendation_split[0]
                     df["Y_r_Key"][stock] = yahoo_recommendation_split[1]
 
-                    print("symbol Y_fin: ", stock)
+                    print("symbol Y_querry: ", stock)
                 except:
                     print("symbol failure: ", stock)
 
@@ -227,15 +206,16 @@ def use_yfinance_multi_api(df):
     if (config.MULTITHREADING_MIXED_COMPUTATION == True):
         df = use_yfinance_mixed(df)
     else:
-        df = use_yfinance_api(df)
+        df = use_yahooquery_api(df)
         df_yfinance = df.loc[df['Y_r_Key'] != '', df.columns].copy()
 
         df = df.loc[df['Y_r_Key'] == '', df.columns].copy()
+        # df = use_yfinance_scraping(df)
         df = use_yahoo_fin_api(df)
         df_yahoo_fin = df.loc[df['Y_r_Mean'] != '', df.columns].copy()
 
         df = df.loc[df['Y_r_Mean'] == '', df.columns].copy()
-        df = use_yfinance_scraping(df)
+        df = use_yfinance_api(df)
 
         frame = [df_yfinance, df_yahoo_fin, df]
         df = pd.concat(frame)
