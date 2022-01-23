@@ -3,6 +3,7 @@ from tools import save_CRTS_output
 from tools import clean_up_df_symbol
 from scrap_yahoo_api import get_yahoo_recommendation
 from scrap_investing import get_investing_recommendation
+from scrap_tradingview_api import get_tradingview_recommendation
 
 import config
 
@@ -30,6 +31,8 @@ def add_market_recom(df):
     if (config.INVESTING_RECOM == True):
         df = get_investing_recommendation(df)
 
+    if (config.TRADINGVIEW_RECOM == True):
+        df = get_tradingview_recommendation(df)
 
     save_df(df)
 
