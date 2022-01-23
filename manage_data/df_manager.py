@@ -1,7 +1,7 @@
 from tools import read_CSL_file
 from tools import save_CRTS_output
 from tools import clean_up_df_symbol
-from scrap_yahoo import get_yahoo_recommendation
+from scrap_yahoo_api import get_yahoo_recommendation
 from scrap_investing import get_investing_recommendation
 
 import config

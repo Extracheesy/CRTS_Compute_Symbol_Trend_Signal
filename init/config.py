@@ -2,15 +2,20 @@ import pandas as pd
 from datetime import date
 DATE = str(date.today())
 
+COLAB = False
+# COLAB = True
+
 INPUT_DIR = "./DATA/INPUT/"
 OUTPUT_DIR = "./DATA/OUTPUT/" + DATE
+
+DRIVER_PATH = "./chromedriver.exe"
 
 OUTPUT_FILENAME = ""
 
 YAHOO_RECOM = True
 INVESTING_RECOM = True
 
-MULTITHREADING = True
+MULTITHREADING = False
 MULTITHREADING_POOL = OUTPUT_DIR + "/POOL/"
 MULTITHREADING_NB_SPLIT_DF = 30
 MULTITHREADING_NUM_THREADS = 20

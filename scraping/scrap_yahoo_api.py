@@ -17,6 +17,8 @@ from merge import merge_csv_to_df
 
 from yahooquery import Ticker
 
+from scrap_yahoo_selenium import use_yfinance_scraping
+
 
 def use_yfinance_mixed(df):
     list_stocks = df.symbol.tolist()
@@ -114,93 +116,6 @@ def use_yahooquery_api(df):
     return df
 
 
-def use_yfinance_scraping(df):
-    list_stocks = df.symbol.tolist()
-    df = df.set_index('symbol')
-
-    for stock in list_stocks:
-        #stock = "AAPL"
-        try:
-            url = 'https://finance.yahoo.com/quote/' + stock + '?p=' + stock + '&.tsrc=fin-srch'
-            print(url)
-
-            headers = {
-                "User-Agent": my_random_user_agent(),
-                "X-Requested-With": "XMLHttpRequest",
-                "Accept": "text/html",
-                "Accept-Encoding": "gzip, deflate",
-                "Connection": "keep-alive",
-            }
-
-            page = requests.get(url, headers=headers)
-
-            if(page.status_code == 404):
-                raise Exception('err. 404')
-
-            #soup = BeautifulSoup(page.text, 'html.parser')
-            soup = BeautifulSoup(page.text, 'lxml')
-
-            # recom = soup.find('data-test', 'html.parser')
-
-            toto = soup.find_all('div')
-            print(toto)
-
-            html_soup = BeautifulSoup(response.text, 'html.parser')
-            type(html_soup)
-
-            # yf_rec refers to yahoo finance recommendation
-
-            content = soup.find('div', attrs={'class': 'B(8px) Pos(a) C(white) Py(2px) Px(0) Ta(c) Bdrs(3px) Trstf(eio) Trsde(0.5) Arrow South Bdtc(i)::a Fw(b) Bgc($buy) Bdtc($buy)'}).text.strip()
-
-
-            content = soup.find('div',       {"class": "B(8px) Pos(a) C(white) Py(2px) Px(0) Ta(c) Bdrs(3px) Trstf(eio) Trsde(0.5) Arrow South Bdtc(i)::a Fw(b) Bgc($buy) Bdtc($buy)"})
-
-            content = soup.find('div', {"class": "B"})
-
-
-            tags = {tag.name for tag in soup.find_all()}
-            class_list = set()
-            for tag in tags:
-                # find all element of tag
-                for i in soup.find_all(tag):
-                    # if tag has attribute of class
-                    if i.has_attr("class"):
-                        if len(i['class']) != 0:
-                            class_list.add(" ".join(i['class']))
-            class_list = []
-            tag = "div"
-            for i in soup.find_all(tag):
-                # if tag has attribute of class
-                if i.has_attr("class"):
-                    if len(i['class']) != 0:
-                        class_list.add(" ".join(i['class']))
-            print(class_list)
-
-            recom = soup.find(class_='quote-mdl')
-            print(recom)
-
-
-            soup = BeautifulSoup(page.text, 'lxml')
-            html_text = soup.text
-
-            match = re.findall(r'Rating...1StrongBuy', html_text)
-            if (len(match) == 19):
-                string = match[0]
-                string = string[6:10]
-
-                Y_recom = float(string)
-                df["Y_r_Mean"][stock] = Y_recom
-                df["Y_r_Key"][stock] = config.DF_YAHOO_RECOMENDATTION['recom_key'][int(Y_recom)-1]
-
-                print("symbol requests: ", stock)
-            else:
-                raise Exception('This is the exception')
-        except:
-            print('exception')
-            print("no requests data symbol: ", stock)
-
-    df.reset_index(inplace=True)
-    return df
 
 def use_yfinance_multi_api(df):
     if (config.MULTITHREADING_MIXED_COMPUTATION == True):
@@ -238,6 +153,8 @@ def get_yahoo_recommendation(df):
         df = merge_csv_to_df(config.MULTITHREADING_POOL, "*_result.csv")
 
     else:
+        # df = use_yfinance_scraping(df)
+
         df = use_yahooquery_api(df)
         df_yfinance = df.loc[df['Y_r_Key'] != '', df.columns].copy()
 
