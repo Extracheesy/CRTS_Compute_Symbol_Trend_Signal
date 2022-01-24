@@ -18,9 +18,14 @@ import yfinance as yf
 from pandas_datareader import data as pdr
 import pandas as pd
 import numpy as np
+import uuid
+
+from tools import split_list_into_list
+from merge import merge_csv_to_df
 
 import config
 import datetime
+import concurrent.futures
 from datetime import date, timedelta
 from load_investing_data import investing_moving_averages
 from load_investing_data import investing_data_from_tag
@@ -139,6 +144,12 @@ def use_investpy_api(df):
 
     return df
 
+def use_investpy_multi_api(df):
+    df = use_investpy_api(df)
+    filename = config.MULTITHREADING_POOL + str(uuid.uuid4()) + '_result.csv'
+    df.to_csv(filename)
+
+
 def get_investing_recommendation(df):
     df["I_symbol"] = ""
     df["I_r_Key"] = ""
@@ -152,11 +163,20 @@ def get_investing_recommendation(df):
 
     START_TIME = datetime.datetime.now().now()
 
-    print("get YahooF recom")
-    df = use_investpy_api(df)
+    print("GET INVESTING.COM RECOM:")
+    if config.MULTITHREADING == True:
+        global_split_list = split_list_into_list(df, config.MULTITHREADING_NB_SPLIT_DF)
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=config.MULTITHREADING_NUM_THREADS) as executor:
+            executor.map(use_investpy_multi_api, global_split_list)
+
+        df = merge_csv_to_df(config.MULTITHREADING_POOL, "*_result.csv")
+
+    else:
+        df = use_investpy_api(df)
 
 
 
-    print("runtime: ", datetime.datetime.now().now() - START_TIME)
+    print("INVESTING.COM RUNTIME: ", datetime.datetime.now().now() - START_TIME)
 
     return df

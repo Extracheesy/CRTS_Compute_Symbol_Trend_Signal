@@ -181,6 +181,6 @@ def get_tradingview_recommendation(df):
 
     df = get_tradingview_signals(df)
 
-    print("runtime: ", datetime.datetime.now().now() - START_TIME)
+    print("TRADINGVIEW RUNTIME: ", datetime.datetime.now().now() - START_TIME)
 
     return df

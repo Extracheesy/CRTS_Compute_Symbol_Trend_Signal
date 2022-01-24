@@ -35,15 +35,15 @@ def mk_directories():
 def split_df(df, size_split):
     return df[:size_split], df[size_split:]
 
-def split_list_into_list(df):
+def split_list_into_list(df, split_size):
     # split a df into a list of breakdown df
     len_df = len(df)
-    len_split_df = int(len_df / config.MULTITHREADING_NB_SPLIT_DF)
+    len_split_df = int(len_df / split_size)
 
     rest_of_the_df = df.copy()
     global_split_list = []
 
-    for i in range(config.MULTITHREADING_NB_SPLIT_DF):
+    for i in range(split_size):
         splited_df, rest_of_the_df = split_df(rest_of_the_df, len_split_df)
         global_split_list.append(splited_df)
 

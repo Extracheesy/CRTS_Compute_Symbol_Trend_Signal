@@ -1,8 +1,12 @@
+import datetime
+import pandas as pd
+
 from tools import read_CSL_file
 from tools import save_CRTS_output
 from tools import clean_up_df_symbol
 from scrap_yahoo_api import get_yahoo_recommendation
 from scrap_investing import get_investing_recommendation
+from tools import split_list_into_list
 from scrap_tradingview_api import get_tradingview_recommendation
 
 import config
@@ -21,19 +25,29 @@ def save_df(df):
     if (config.COLAB == True):
         save_CRTS_output(df, config.COLAB_OUTPUT_FILENAME)
 
-def add_market_recom(df):
+def add_market_recom(df_entry):
     # DEBUG
-    # df = df[:config.DEBUG_REDUCE_DF_SIZE]
+    # df_entry = df_entry[:config.DEBUG_REDUCE_DF_SIZE]
+    START_TIME = datetime.datetime.now().now()
 
-    if(config.YAHOO_RECOM == True):
-        df = get_yahoo_recommendation(df)
+    list_split_df = split_list_into_list(df_entry, config.PERFO_SPLIT_ENTRY_DATAFRAME)
+    list_output_df = []
+    for df in list_split_df:
+        if(config.YAHOO_RECOM == True):
+            df = get_yahoo_recommendation(df)
 
-    if (config.INVESTING_RECOM == True):
-        df = get_investing_recommendation(df)
+        if (config.INVESTING_RECOM == True):
+            df = get_investing_recommendation(df)
 
-    if (config.TRADINGVIEW_RECOM == True):
-        df = get_tradingview_recommendation(df)
+        if (config.TRADINGVIEW_RECOM == True):
+            df = get_tradingview_recommendation(df)
 
+        list_output_df.append(df)
+
+    df = pd.concat(list_output_df, axis=0, ignore_index=True)
+    df = clean_up_df_symbol(df)
     save_df(df)
+
+    print("OVERALL RUNTIME: ", datetime.datetime.now().now() - START_TIME)
 
     return df

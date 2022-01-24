@@ -115,8 +115,6 @@ def use_yahooquery_api(df):
     df.reset_index(inplace=True)
     return df
 
-
-
 def use_yfinance_multi_api(df):
     if (config.MULTITHREADING_MIXED_COMPUTATION == True):
         df = use_yfinance_mixed(df)
@@ -143,9 +141,9 @@ def get_yahoo_recommendation(df):
     df["Y_r_Key"] = ""
     df["Y_r_Mean"] = ""
     START_TIME = datetime.datetime.now().now()
-    print("get YahooF recom")
+    print("GET YAHOO FINANCE RECOM:")
     if config.MULTITHREADING == True:
-        global_split_list = split_list_into_list(df)
+        global_split_list = split_list_into_list(df, config.MULTITHREADING_NB_SPLIT_DF)
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=config.MULTITHREADING_NUM_THREADS) as executor:
             executor.map(use_yfinance_multi_api, global_split_list)
@@ -169,7 +167,7 @@ def get_yahoo_recommendation(df):
         frame = [df_yfinance, df_yahoo_fin, df]
         df = pd.concat(frame)
 
-    print("runtime: ", datetime.datetime.now().now() - START_TIME)
+    print("YAHOO FINANCE RUNTIME: ", datetime.datetime.now().now() - START_TIME)
 
     # df = use_yahoo_fin_api(df)
 
