@@ -175,8 +175,6 @@ def get_investing_recommendation(df):
     else:
         df = use_investpy_api(df)
 
-
-
     print("INVESTING.COM RUNTIME: ", datetime.datetime.now().now() - START_TIME)
 
     return df

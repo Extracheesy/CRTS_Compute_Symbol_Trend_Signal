@@ -3,6 +3,13 @@ import time
 import pandas as pd
 import numpy as np
 import datetime
+import uuid
+
+import config
+import concurrent.futures
+
+from tools import split_list_into_list
+from merge import merge_csv_to_df
 
 from tradingview_ta import TA_Handler, Interval, Exchange
 
@@ -65,11 +72,9 @@ def set_tradingview_columns(df):
 
     # df['TV_country'] = np.where(df['TV_exchange'] == 'NASDAQ', 'america', df['TV_country'])
 
-
-
     return df
 
-def get_tradingview_signals(df):
+def use_tradingview_api(df):
     df = insert_tradingview_df_column(df)
     df = set_tradingview_columns(df)
 
@@ -173,13 +178,24 @@ def get_tradingview_signals(df):
     df.reset_index(inplace=True, drop=True)
     return df
 
+def use_tradingview_multi_api(df):
+    df = use_tradingview_api(df)
+    filename = config.MULTITHREADING_POOL + str(uuid.uuid4()) + '_result.csv'
+    df.to_csv(filename)
 
 def get_tradingview_recommendation(df):
-    print("get_tradingview_signals")
+    print("GET TRADINGVIEW RECOM")
 
     START_TIME = datetime.datetime.now().now()
+    if config.MULTITHREADING == True:
+        global_split_list = split_list_into_list(df, config.MULTITHREADING_NB_SPLIT_DF)
 
-    df = get_tradingview_signals(df)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=config.MULTITHREADING_NUM_THREADS) as executor:
+            executor.map(use_tradingview_multi_api, global_split_list)
+
+        df = merge_csv_to_df(config.MULTITHREADING_POOL, "*_result.csv")
+    else:
+        df = use_tradingview_api(df)
 
     print("TRADINGVIEW RUNTIME: ", datetime.datetime.now().now() - START_TIME)
 

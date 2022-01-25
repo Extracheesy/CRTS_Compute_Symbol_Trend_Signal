@@ -12,9 +12,10 @@ from scrap_tradingview_api import get_tradingview_recommendation
 import config
 
 def get_df(input_file):
-    config.OUTPUT_FILENAME = config.OUTPUT_DIR + "/recom_df_" + input_file + ".csv"
+    output_file = input_file.replace("CSL","CRTS")
+    config.OUTPUT_FILENAME = config.OUTPUT_DIR + "/recom_df_" + output_file + ".csv"
     if (config.COLAB == True):
-        config.COLAB_OUTPUT_FILENAME = config.COLAB_OUTPUT_DIR + "/recom_df_" + input_file + ".csv"
+        config.COLAB_OUTPUT_FILENAME = config.COLAB_OUTPUT_DIR + "/recom_df_" + output_file + ".csv"
 
     df = read_CSL_file(input_file)
     return df
