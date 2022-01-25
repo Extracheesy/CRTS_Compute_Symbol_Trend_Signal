@@ -30,7 +30,7 @@ def use_yfinance_mixed(df):
             df["Y_r_Key"][stock] = yf_stock.info['recommendationKey']
             df["Y_r_Mean"][stock] = yf_stock.info['recommendationMean']
 
-            print("symbol Yfinance: ", stock)
+            # print("symbol Yfinance: ", stock)
         except:
             try:
                 quote_data = si.get_quote_data(stock)

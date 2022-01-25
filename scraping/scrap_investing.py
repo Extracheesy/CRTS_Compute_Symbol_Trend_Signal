@@ -129,7 +129,7 @@ def use_investpy_api(df):
                 df['I_country'][symbol] = search_result.country
                 df['I_company_name'][symbol] = search_result.name
 
-                print("Investing.com symbol: ", symbol)
+                # print("Investing.com symbol: ", symbol)
             except:
                 print("No Investing.com data for ", symbol)
         except:
