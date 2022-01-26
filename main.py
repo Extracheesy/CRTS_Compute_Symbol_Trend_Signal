@@ -4,8 +4,8 @@ sys.path.append("./manage_data/")
 sys.path.append("./scraping/")
 sys.path.append("./init/")
 
-from df_manager import get_df
-from df_manager import add_market_recom
+from data_manager import get_df
+from data_manager import add_market_recom
 from tools import mk_directories
 import config
 
